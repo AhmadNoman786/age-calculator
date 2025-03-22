@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Age Calculator</title>
+  <!-- Import Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Montserrat:wght@700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif; /* Default font for body */
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); /* Animated gradient background */
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1); /* Semi-transparent white background */
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif; /* Attractive heading font */
+      font-size: 2.8rem;
+      margin-bottom: 1.5rem;
+      color: #fff; /* White text for contrast */
+      font-weight: 700; /* Bold weight for heading */
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Text shadow for depth */
+    }
+
+    .calculator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    label {
+      font-family: 'Poppins', sans-serif; /* Clean and modern font for labels */
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: #fff; /* White text for labels */
+      font-weight: 600; /* Semi-bold weight for labels */
+    }
+
+    input[type="date"] {
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      width: 100%;
+      max-width: 250px;
+      background: rgba(255, 255, 255, 0.2); /* Semi-transparent white background */
+      color: #fff; /* White text for input */
+      font-family: 'Poppins', sans-serif; /* Consistent font for input */
+    }
+
+    button {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ff6f61, #ff4a3d); /* Coral gradient */
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-family: 'Poppins', sans-serif; /* Consistent font for button */
+      font-weight: 600; /* Semi-bold weight for button text */
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      color: #fff; /* White text for result */
+      font-family: 'Roboto Mono', monospace; /* Monospace font for result */
+    }
+
+    .result.show {
+      opacity: 1;
+    }
+
+    #seconds, #hours, #weeks, #countdown {
+      font-size: 1rem;
+      color: #ffeb3b; /* Yellow color for dynamic data */
+      font-family: 'Roboto Mono', monospace; /* Monospace font for dynamic data */
+    }
+
+    .feature {
+      margin-top: 1rem;
+      font-size: 1rem;
+      color: #ddd; /* Light gray for feature text */
+      font-family: 'Poppins', sans-serif; /* Clean font for feature text */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Age Calculator</h1>
+    <div class="calculator">
+      <label for="birthdate">Enter your birthdate:</label>
+      <input type="date" id="birthdate" name="birthdate">
+      <button id="calculateBtn">Calculate Age</button>
+      <div id="result" class="result"></div>
+      <div id="seconds"></div> <!-- Real-time seconds display -->
+      <div id="hours"></div> <!-- Age in hours -->
+      <div id="weeks"></div> <!-- Age in weeks -->
+      <div id="countdown"></div> <!-- Countdown to next birthday -->
+      <div id="daysLeft" class="feature"></div> <!-- Days left to birthday -->
+      <div id="zodiacSign" class="feature"></div> <!-- Zodiac sign -->
+      <div id="dayOfWeek" class="feature"></div> <!-- Day of the week -->
+      <div id="season" class="feature"></div> <!-- Season -->
+    </div>
+  </div>
+
+  <script>
+    // JavaScript Functionality
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resultElement = document.getElementById('result');
+    const secondsElement = document.getElementById('seconds');
+    const hoursElement = document.getElementById('hours');
+    const weeksElement = document.getElementById('weeks');
+    const countdownElement = document.getElementById('countdown');
+    const daysLeftElement = document.getElementById('daysLeft');
+    const zodiacSignElement = document.getElementById('zodiacSign');
+    const dayOfWeekElement = document.getElementById('dayOfWeek');
+    const seasonElement = document.getElementById('season');
+    let birthDate;
+
+    calculateBtn.addEventListener('click', function () {
+      const birthdateInput = document.getElementById('birthdate').value;
+      if (!birthdateInput) {
+        alert('Please enter your birthdate.');
+        return;
+      }
+
+      birthDate = new Date(birthdateInput);
+      calculateAge();
+      calculateHours();
+      calculateWeeks();
+      calculateCountdown();
+      calculateDaysLeft();
+      calculateZodiacSign();
+      calculateDayOfWeek();
+      calculateSeason();
+    });
+
+    function calculateAge() {
+      const today = new Date();
+      const ageInMilliseconds = today - birthDate;
+
+      // Calculate years, months, days, and minutes
+      const ageDate = new Date(ageInMilliseconds);
+      const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+      const months = ageDate.getUTCMonth();
+      const days = ageDate.getUTCDate() - 1;
+      const minutes = Math.floor((ageInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+
+      // Display years, months, days, and minutes
+      resultElement.textContent = `Your age is ${years} years, ${months} months, ${days} days, and ${minutes} minutes.`;
+      resultElement.classList.add('show');
+
+      // Start real-time seconds counter
+      updateSeconds();
+      setInterval(updateSeconds, 1000);
+    }
+
+    function updateSeconds() {
+      if (!birthDate) return;
+
+      const today = new Date();
+      const ageInMilliseconds = today - birthDate;
+      const seconds = Math.floor(ageInMilliseconds / 1000);
+
+      // Display real-time seconds
+      secondsElement.textContent = `Seconds lived: ${seconds}`;
+    }
+
+    function calculateHours() {
+      const today = new Date();
+      const ageInMilliseconds = today - birthDate;
+      const hours = Math.floor(ageInMilliseconds / (1000 * 60 * 60));
+
+      // Display age in hours
+      hoursElement.textContent = `Hours lived: ${hours}`;
+    }
+
+    function calculateWeeks() {
+      const today = new Date();
+      const ageInMilliseconds = today - birthDate;
+      const weeks = Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24 * 7));
+
+      // Display age in weeks
+      weeksElement.textContent = `Weeks lived: ${weeks}`;
+    }
+
+    function calculateCountdown() {
+      const today = new Date();
+      const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+
+      if (today > nextBirthday) {
+        nextBirthday.setFullYear(today.getFullYear() + 1);
+      }
+
+      const timeLeft = nextBirthday - today;
+      const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+      const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const secondsLeft = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      // Display countdown to next birthday
+      countdownElement.textContent = `Countdown to next birthday: ${daysLeft}d ${hoursLeft}h ${minutesLeft}m ${secondsLeft}s`;
+    }
+
+    function calculateDaysLeft() {
+      const today = new Date();
+      const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+
+      if (today > nextBirthday) {
+        nextBirthday.setFullYear(today.getFullYear() + 1);
+      }
+
+      const daysLeft = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+      daysLeftElement.textContent = `Days left until your next birthday: ${daysLeft}`;
+    }
+
+    function calculateZodiacSign() {
+      const month = birthDate.getMonth() + 1;
+      const day = birthDate.getDate();
+      let zodiacSign = '';
+
+      if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) zodiacSign = 'Aquarius';
+      else if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) zodiacSign = 'Pisces';
+      else if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) zodiacSign = 'Aries';
+      else if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) zodiacSign = 'Taurus';
+      else if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) zodiacSign = 'Gemini';
+      else if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) zodiacSign = 'Cancer';
+      else if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) zodiacSign = 'Leo';
+      else if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) zodiacSign = 'Virgo';
+      else if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) zodiacSign = 'Libra';
+      else if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) zodiacSign = 'Scorpio';
+      else if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) zodiacSign = 'Sagittarius';
+      else if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) zodiacSign = 'Capricorn';
+
+      zodiacSignElement.textContent = `Your Zodiac Sign: ${zodiacSign}`;
+    }
+
+    function calculateDayOfWeek() {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const dayOfWeek = days[birthDate.getDay()];
+      dayOfWeekElement.textContent = `You were born on a: ${dayOfWeek}`;
+    }
+
+    function calculateSeason() {
+      const month = birthDate.getMonth() + 1;
+      let season = '';
+
+      if (month >= 3 && month <= 5) season = 'Spring';
+      else if (month >= 6 && month <= 8) season = 'Summer';
+      else if (month >= 9 && month <= 11) season = 'Autumn';
+      else season = 'Winter';
+
+      seasonElement.textContent = `Season you were born in: ${season}`;
+    }
+  </script>
+</body>
+</html>
